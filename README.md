@@ -1,2 +1,4 @@
 # Impressions2Font:Generating Fonts by Specifying Impressions(ICDAR2021)
-Generating Fonts by Specifying Impressions
+## Paper
+**Generating Fonts by Specifying Impressions**.<br>
+[Seiya Matsuda][Akisato Kimura], and [Seichi Uchida]
