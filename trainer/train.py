@@ -91,20 +91,22 @@ def gan_train(param):
             loss_drift = (D_real_TF ** 2).mean()
             ## scに関する一貫性損失
             #Wasserstein lossの計算
-            D_TF_loss = D_fake_loss + D_real_loss * opts.lambda_class + opts.lambda_gp * gp_loss + 0.001 * loss_drift
+            D_TF_loss = D_fake_loss + D_real_loss * opts.lambda_class + opts.lambda_gp * gp_loss
             # 印象語分類のロス
             D_class_loss = imp_loss(D_real_class, labels_oh)
-            D_loss = 0.1  * D_TF_loss + D_class_loss * 10
+            D_loss = D_TF_loss + D_class_loss + 0.001 * loss_drift
 
             D_optimizer.zero_grad()
             D_loss.backward()
             D_optimizer.step()
+            D_running_TF_loss += D_TF_loss.item()
+            D_running_cl_loss += D_class_loss.item()
         real_pred = 1 * (torch.sigmoid(D_real_TF) > 0.5).detach().cpu()
         fake_pred = 1 * (torch.sigmoid(D_fake) > 0.5).detach().cpu()
         real_TF = torch.ones(real_pred.size(0))
         fake_TF = torch.zeros(fake_pred.size(0))
         r_acc = (real_pred == real_TF).float().sum().item() / len(real_pred)
-        f_acc = (fake_pred == fake_TF).float().sum().item()/len(fake_pred)
+        f_acc = (fake_pred == fake_TF).float().sum().item() / len(fake_pred)
         real_acc.append(r_acc)
         fake_acc.append(f_acc)
         prediction_imp.append(D_real_class.detach().cpu())
