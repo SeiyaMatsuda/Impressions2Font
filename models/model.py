@@ -136,4 +136,4 @@ class Discriminator(nn.Module):
         x = x.view(-1, 128 * 16 * 16)
         x_TF = self.fc_TF(x)
         x_class = self.fc_class(x)
-        return x_TF, x_class
+        return x_TF.squeeze(), x_class.squeeze()

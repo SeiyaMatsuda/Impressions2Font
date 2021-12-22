@@ -28,7 +28,7 @@ def model_run(opts):
     data = np.array([np.load(d) for d in opts.data])
     label = opts.impression_word_list
     # 生成に必要な乱数
-    z = torch.randn(4, opts.latent_size)
+    z = torch.normal(mean = 0.5, std = 0.2, size = (4, opts.latent_size))
     #単語IDの変換
     ID = {key:idx+1 for idx, key in enumerate(opts.w2v_vocab)}
     weights = np.array(list(opts.w2v_vocab.values()))
@@ -116,7 +116,7 @@ def model_run(opts):
         LOGGER.info(f'\tacc: {check_point["epoch_fake_acc"]:.4f}(fake_acc)')
         LOGGER.info(f'\tFID: {check_point["FID"]:.4f}(FID)')
        # モデル保存のためのcheckpointファイルを作成
-        if iter_start >= opts.res_step*6:
+        if iter_start >= 900000:
             break
 
     writer.close()

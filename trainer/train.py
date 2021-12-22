@@ -58,7 +58,7 @@ def gan_train(param):
         labels_oh = Multilabel_OneHot(labels, len(ID), normalize=True).to(opts.device)
         # training Generator
         #画像の生成に必要なノイズ作成
-        z = torch.randn(batch_len, opts.latent_size).to(opts.device)
+        z = torch.normal(mean = 0.5, std = 0.2, size = (batch_len, opts.latent_size)).to(opts.device)
         ##画像の生成に必要な印象語ラベルを取得
         _,  D_real_class = D_model(real_img, char_class_oh)
         gen_label = last_activation(D_real_class.detach()).to(opts.device)
@@ -94,7 +94,7 @@ def gan_train(param):
             D_TF_loss = D_fake_loss + D_real_loss * opts.lambda_class + opts.lambda_gp * gp_loss + 0.001 * loss_drift
             # 印象語分類のロス
             D_class_loss = imp_loss(D_real_class, labels_oh)
-            D_loss = D_TF_loss + D_class_loss
+            D_loss = D_TF_loss + D_class_loss * 10
 
             D_optimizer.zero_grad()
             D_loss.backward()
