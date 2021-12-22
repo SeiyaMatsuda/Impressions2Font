@@ -91,7 +91,7 @@ def gan_train(param):
             loss_drift = (D_real_TF ** 2).mean()
             ## scに関する一貫性損失
             #Wasserstein lossの計算
-            D_TF_loss = D_fake_loss + D_real_loss * opts.lambda_class + opts.lambda_gp * gp_loss
+            D_TF_loss = D_fake_loss + D_real_loss + opts.lambda_gp * gp_loss
             # 印象語分類のロス
             D_class_loss = imp_loss(D_real_class, labels_oh)
             D_loss = D_TF_loss + D_class_loss + 0.001 * loss_drift
