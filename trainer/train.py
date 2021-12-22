@@ -94,7 +94,7 @@ def gan_train(param):
             D_TF_loss = D_fake_loss + D_real_loss * opts.lambda_class + opts.lambda_gp * gp_loss + 0.001 * loss_drift
             # 印象語分類のロス
             D_class_loss = imp_loss(D_real_class, labels_oh)
-            D_loss = D_TF_loss + D_class_loss * 10
+            D_loss = 0.1  * D_TF_loss + D_class_loss * 10
 
             D_optimizer.zero_grad()
             D_loss.backward()
