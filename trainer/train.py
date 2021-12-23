@@ -57,50 +57,50 @@ def gan_train(param):
         # 印象語のベクトル
         labels_oh = Multilabel_OneHot(labels, len(ID), normalize=True).to(opts.device)
         # training Generator
-        #画像の生成に必要なノイズ作成
-        z = torch.normal(mean = 0.5, std = 0.2, size = (batch_len, opts.latent_size)).to(opts.device)
-        ##画像の生成に必要な印象語ラベルを取得
-        _,  D_real_class = D_model(real_img, char_class_oh)
-        gen_label = last_activation(D_real_class.detach()).to(opts.device)
-        # ２つのノイズの結合
-        fake_img, _ = G_model(z, char_class_oh, gen_label)
-        D_fake_TF, D_fake_class = D_model(fake_img, char_class_oh)
-        # Wasserstein lossの計算
-        G_TF_loss = -torch.mean(D_fake_TF)
-        # 印象語分類のロス
-        G_class_loss = imp_loss(D_fake_class, gen_label)
-        # mode seeking lossの算出
-        G_loss = G_TF_loss + G_class_loss * opts.lambda_class
-        G_optimizer.zero_grad()
-        G_loss.backward()
-        G_optimizer.step()
-        gc.collect()
-        G_running_TF_loss += G_TF_loss.item()
-        G_running_cl_loss += G_class_loss.item()
+        for _ in range(opts.num_critic):
+            #画像の生成に必要なノイズ作成
+            z = torch.normal(mean = 0.5, std = 0.2, size = (batch_len, opts.latent_size)).to(opts.device)
+            ##画像の生成に必要な印象語ラベルを取得
+            _,  D_real_class = D_model(real_img, char_class_oh)
+            gen_label = last_activation(D_real_class.detach()).to(opts.device)
+            # ２つのノイズの結合
+            fake_img, _ = G_model(z, char_class_oh, gen_label)
+            D_fake_TF, D_fake_class = D_model(fake_img, char_class_oh)
+            # Wasserstein lossの計算
+            G_TF_loss = -torch.mean(D_fake_TF)
+            # 印象語分類のロス
+            G_class_loss = imp_loss(D_fake_class, gen_label)
+            # mode seeking lossの算出
+            G_loss = G_TF_loss + G_class_loss * opts.lambda_class
+            G_optimizer.zero_grad()
+            G_loss.backward()
+            G_optimizer.step()
+            gc.collect()
+            G_running_TF_loss += G_TF_loss.item()
+            G_running_cl_loss += G_class_loss.item()
 
         #training Discriminator
         #Discriminatorに本物画像を入れて順伝播⇒Loss計算
-        for _ in range(opts.num_critic):
-            # 生成用のラベル
-            fake_img, _ = G_model(z, char_class_oh, gen_label)
-            D_real_TF, D_real_class = D_model(real_img, char_class_oh)
-            D_real_loss = -torch.mean(D_real_TF)
-            D_fake, _ = D_model(fake_img.detach(), char_class_oh)
-            D_fake_loss = torch.mean(D_fake)
-            gp_loss = compute_gradient_penalty(D_model, real_img.data, fake_img.data, opts.Tensor, char_class=char_class_oh)
-            loss_drift = (D_real_TF ** 2).mean()
-            ## scに関する一貫性損失
-            #Wasserstein lossの計算
-            D_TF_loss = D_fake_loss + D_real_loss + opts.lambda_gp * gp_loss
-            # 印象語分類のロス
-            D_class_loss = imp_loss(D_real_class, labels_oh)
-            D_loss = D_TF_loss + D_class_loss + 0.001 * loss_drift
+        # 生成用のラベル
+        fake_img, _ = G_model(z, char_class_oh, gen_label)
+        D_real_TF, D_real_class = D_model(real_img, char_class_oh)
+        D_real_loss = -torch.mean(D_real_TF)
+        D_fake, _ = D_model(fake_img.detach(), char_class_oh)
+        D_fake_loss = torch.mean(D_fake)
+        gp_loss = compute_gradient_penalty(D_model, real_img.data, fake_img.data, opts.Tensor, char_class=char_class_oh)
+        loss_drift = (D_real_TF ** 2).mean()
+        ## scに関する一貫性損失
+        #Wasserstein lossの計算
+        D_TF_loss = D_fake_loss + D_real_loss + opts.lambda_gp * gp_loss
+        # 印象語分類のロス
+        D_class_loss = imp_loss(D_real_class, labels_oh)
+        D_loss = 0.1 * D_TF_loss + D_class_loss + 0.001 * loss_drift
 
-            D_optimizer.zero_grad()
-            D_loss.backward()
-            D_optimizer.step()
-            D_running_TF_loss += D_TF_loss.item()
-            D_running_cl_loss += D_class_loss.item()
+        D_optimizer.zero_grad()
+        D_loss.backward()
+        D_optimizer.step()
+        D_running_TF_loss += D_TF_loss.item()
+        D_running_cl_loss += D_class_loss.item()
         real_pred = 1 * (torch.sigmoid(D_real_TF) > 0.5).detach().cpu()
         fake_pred = 1 * (torch.sigmoid(D_fake) > 0.5).detach().cpu()
         real_TF = torch.ones(real_pred.size(0))
