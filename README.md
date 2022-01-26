@@ -8,7 +8,7 @@ In our other studies, we have also proposed font generation model from specific 
 - [**Font Generation with Missing Impression Labels**](https://takuhirok.github.io/rGAN/) (ICPR 2022): GAN for *impression words*
 ## Paper
 **Generating Fonts by Specifying Impressions**.<br>
-[Seiya Matsuda][Akisato Kimura], and [Seichi Uchida]<br>
+Seiya Matsuda, Akisato Kimura, and Seichi Uchida<br>
 In ICDAR 2021 (Poster session).
 
 
