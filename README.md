@@ -28,13 +28,10 @@ quantitative evaluations prove that Imp2Font generates font images with
 higher quality than comparative methods by providing multiple impression words or even unlearned words.
 
 ### Example
-To train **CP-GAN** on **CIFAR-10to5**, run the following:
+To train **Imp2Font** on **MyFonts Dataset**, run the following:
 
 ```bash
-python train.py \
-    --dataset cifar10to5 \
-    --trainer cpgan \
-    --out outputs/cifar10to5/cpgan
+python main.py
 ```
 
 ## Test
@@ -42,7 +39,7 @@ To generate images, use the following script:
 
 ```bash
 python test.py \
-    --dataset [cifar10/cifar10to5/cifar7to3] \
+    --label impression words \
     --g_path trained_model_path \
     --out output_directory_path
 ```
@@ -50,27 +47,46 @@ python test.py \
 Please choose one of the options in the square brackets ([ ]).
 
 ### Example
-To test the above-trained model on **CIFAR-10to5**, run the following:
+To generate a font from the impression word **elegant**, run the following:
 
 ```bash
 python test.py \
-    --dataset cifar10to5 \
-    --g_path outputs/cifar10to5/cpgan/netG_iter_100000.pth \
+    --label elegant
+    --g_path outputs/img_iter_100000.pth \
+    --out samples
+```
+### Example
+To generate a font from the impression word **elegant** & **serif**, run the following:
+
+```bash
+python test.py \
+    --label elegant serif
+    --g_path outputs/img_iter_100000.pth \
     --out samples
 ```
 
+## MyFonts Dataset
+MyFonts Dataset contains 18,815 fonts and 1,824 impression words (or tags) from MyFonts.com. 
+Impression words are given as multi-label.
+The figure below shows a part of the sample and the corresponding impression words.
+
+
 ## Examples of generated images
-### CIFAR-10to5
-**Class-overlapping setting.**
+### Impression words you can input
+**single impression word.**
 The original **ten** classes (0,...,9; defined in (a)) are divided into **five** classes (*A*,...,*E*) with class overlapping, as shown in (b).
 
 <img src="docs/images/overlap.png" width=100% alt="CIFAR-10to5 class-overlapping setting">
 
-**Results.**
+**multiple impression word.**
 Each column shows samples associated with the same class-distinct and class-mutual states: *airplane*, *automobile*, *bird*, *cat*, *deer*, *dog*, *frog*, *horse*, *ship*, and *truck*, respectively, from left to right. Each row includes samples generated from a fixed ***z****<sup>g</sup>* and a varied ***y****<sup>g</sup>*. CP-GAN (b) succeeds in selectively generating class-distinct (red font) and class-mutual (blue font) images, whereas AC-GAN (a) fails to do so.
 
 <img src="docs/images/samples.png" width=100% alt="CIFAR-10to5 samples">
 
+**unlearned impression word.**
+Each column shows samples associated with the same impression words: *airplane*, *automobile*, *bird*, *cat*, *deer*, *dog*, *frog*, *horse*, *ship*, and *truck*, respectively, from left to right. Each row includes samples generated from a fixed ***z****<sup>g</sup>* and a varied ***y****<sup>g</sup>*. CP-GAN (b) succeeds in selectively generating class-distinct (red font) and class-mutual (blue font) images, whereas AC-GAN (a) fails to do so.
+
+<img src="docs/images/samples.png" width=100% alt="CIFAR-10to5 samples">
 ## Citation
 If you use this code for your research, please cite our paper.
 
