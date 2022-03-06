@@ -45,7 +45,7 @@ pip install -r requirements.txt
 Download the dataset from [Google Drive](https://drive.google.com/u/0/open?id=10GRqLu6-1JPXI8rcq23S4-4AhB6On-L6). Place in the following directory. 
 
 ```bash
-dataset/
+./Myfont/dataset/
 ```
 
 This dataset is constructed by Chen et al. [*large-scale Tag-based Font Retrieval with Generative Feature Learning*](https://arxiv.org/abs/1909.02072). ICCV 2019
